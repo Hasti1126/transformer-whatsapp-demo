@@ -347,7 +347,7 @@
             <button class="btn" onclick="showStep(4)">5. Decoder</button>
             <button class="btn" onclick="showStep(5)">6. Cross-Attention</button>
             <button class="btn" onclick="showStep(6)">7. Output</button>
-        </div></button>
+        </div>4)">5. Prediction</button>
         </div>
     </div>
 
@@ -416,133 +416,183 @@
                     
                     <div class="math-formula">
                         Each message → Vector: x<sub>t</sub> ∈ R<sup>d_model</sup>
-                        <br>Where t = message position, d_model = vector size
+                        <br><br><strong>Where:</strong>
+                        <br>• t = token/word position in sequence (1, 2, 3...)
+                        <br>• d_model = embedding dimension (typically 512 or 768)
+                        <br>• R<sup>d_model</sup> = Real number space with d_model dimensions
+                        <br><br>For sentence with n words: X = [x₁, x₂, ..., xₙ] ∈ R<sup>n×d_model</sup>
                     </div>
                     
                     <p><strong>Real WhatsApp analogy:</strong></p>
-                    <p>• Alex's message "Hey guys, can anyone help me with machine learning?" becomes a 512-dimensional vector</p>
-                    <p>• Each word gets its own vector: ["Hey"→[0.2,0.8,...],"guys"→[0.1,0.4,...], etc.]</p>
-                    <p>• Just like how WhatsApp stores each message with metadata, transformers store each word with rich mathematical information</p>
+                    <p>• Alex's message "Hey guys, can anyone help me with machine learning?"</p>
+                    <p>• Each word gets converted: "Hey"→[0.2, 0.8, -0.1, ...] (512 numbers)</p>
+                    <p>• "guys"→[0.1, 0.4, 0.9, ...] (another 512 numbers)</p>
+                    <p>• Like giving each word a unique mathematical ID that captures its meaning</p>
                     
-                    <p><strong>Why this matters:</strong> The AI needs to convert human language into numbers it can process, just like how your phone converts your voice into digital signals.</p>
+                    <p><strong>Why this matters:</strong> Computers need numbers, not words. This converts "machine learning" into math the AI can understand and process!</p>
                 `
             },
             1: {
                 title: "2. Positional Encoding = Message Timestamps",
                 content: `
-                    <p><strong>What's happening:</strong> Since order matters in conversations, we add position information to each message vector.</p>
+                    <p><strong>What's happening:</strong> Since transformers process all words simultaneously, we need to add position information so they know word order.</p>
                     
                     <div class="math-formula">
-                        PE(pos,2i) = sin(pos/10000<sup>2i/d_model</sup>)
-                        <br>PE(pos,2i+1) = cos(pos/10000<sup>2i/d_model</sup>)
-                        <br>Final input: z<sub>t</sub> = x<sub>t</sub> + PE<sub>t</sub>
+                        PE(pos, 2i) = sin(pos / 10000<sup>2i/d_model</sup>)
+                        <br>PE(pos, 2i+1) = cos(pos / 10000<sup>2i/d_model</sup>)
+                        <br><br><strong>Where:</strong>
+                        <br>• pos = position of word in sequence (0, 1, 2, 3...)
+                        <br>• i = dimension index (0, 1, 2, ..., d_model/2)
+                        <br>• 2i = even dimensions use sine
+                        <br>• 2i+1 = odd dimensions use cosine
+                        <br>• 10000 = scaling factor for different frequencies
+                        <br><br>Final input: z<sub>t</sub> = x<sub>t</sub> + PE<sub>t</sub>
                     </div>
                     
                     <p><strong>Real WhatsApp analogy:</strong></p>
-                    <p>• Maya's message at 2:16 PM gets position encoding [Position 2]</p>
-                    <p>• Just like WhatsApp shows timestamps, the AI knows "Sure! What specific topic?" came AFTER "Hey guys, can anyone help me..."</p>
-                    <p>• Without this, the AI might think Maya asked the question first!</p>
+                    <p>• Position 0: "Hey" gets PE = [sin(0), cos(0), sin(0), cos(0)...]</p>
+                    <p>• Position 1: "guys" gets PE = [sin(1), cos(1), sin(1/10000), cos(1/10000)...]</p>
+                    <p>• Like timestamp: Maya's message at 2:16 PM comes after Alex's at 2:15 PM</p>
+                    <p>• Without this: AI might think "learning machine help" = same as "help machine learning"</p>
                     
-                    <p><strong>Why this matters:</strong> "I'm not going" vs "I'm going, not!" - word order completely changes meaning!</p>
+                    <p><strong>Why this matters:</strong> "I'm not going" ≠ "I'm going, not!" Word order changes everything in language!</p>
                 `
             },
             2: {
-                title: "3. Encoder = Friends Reading & Understanding",
+                title: "3. Encoder Self-Attention = Friends Cross-Referencing",
                 content: `
-                    <p><strong>What's happening:</strong> The encoder acts like friends in the group carefully reading and understanding ALL the messages to build context.</p>
+                    <p><strong>What's happening:</strong> Each word looks at ALL other words to understand relationships and context.</p>
                     
                     <div class="math-formula">
-                        Attention(Q,K,V) = softmax(QK<sup>T</sup>/√d<sub>k</sub>)V
-                        <br>Q = queries (what am I looking for?)
-                        <br>K = keys (labels/topics in past messages)  
-                        <br>V = values (actual message content)
+                        Q = XW<sup>Q</sup>, K = XW<sup>K</sup>, V = XW<sup>V</sup>
+                        <br>Attention(Q,K,V) = softmax(QK<sup>T</sup>/√d<sub>k</sub>)V
+                        <br><br><strong>Where:</strong>
+                        <br>• Q (Query) = "What am I looking for?" (d_model × d_k)
+                        <br>• K (Key) = "What topics/labels do I have?" (d_model × d_k)  
+                        <br>• V (Value) = "What's my actual content?" (d_model × d_v)
+                        <br>• W<sup>Q</sup>, W<sup>K</sup>, W<sup>V</sup> = learned weight matrices
+                        <br>• d_k = key/query dimension (usually d_model/num_heads)
+                        <br>• √d_k = scaling factor to prevent softmax saturation
+                        <br>• softmax = converts scores to probabilities (sum = 1)
                     </div>
                     
                     <p><strong>Real WhatsApp analogy:</strong></p>
-                    <p>• 🧠 Encoder reads ALL messages: Alex's question + Maya's offer + Sam's mention + Chris's excitement</p>
-                    <p>• It finds the connection: "machine learning" relates to "transformers"</p>
-                    <p>• Creates a rich understanding of the conversation context</p>
-                    <p>• This understanding will help generate the perfect response</p>
+                    <p>• Word "help" (Query): "What am I related to?"</p>
+                    <p>• All words (Keys): "machine"=topic, "learning"=subject, "transformers"=specific_topic</p>
+                    <p>• Attention scores: help→machine (0.1), help→learning (0.8), help→transformers (0.9)</p>
+                    <p>• Final: "help" gets context from "learning" and "transformers" content</p>
                     
-                    <p><strong>Why this matters:</strong> Before responding, good friends read the whole conversation to understand what's really being discussed!</p>
+                    <p><strong>Why this matters:</strong> Like reading a WhatsApp thread - you connect "help" with "machine learning" mentioned earlier!</p>
                 `
             },
             3: {
-                title: "4. Multi-Head Attention (Encoder) = Multiple Perspectives",
+                title: "4. Multi-Head Attention = Multiple Expert Friends",
                 content: `
-                    <p><strong>What's happening:</strong> The encoder uses multiple "attention heads" - like having different friends each focus on different aspects of the conversation.</p>
+                    <p><strong>What's happening:</strong> Instead of one attention mechanism, we run multiple in parallel - each focusing on different types of relationships.</p>
                     
                     <div class="math-formula">
-                        MHA(X) = [head₁; head₂; ...; head_h]W^O
-                        <br>Each head focuses on different patterns
+                        MultiHead(Q,K,V) = Concat(head₁, head₂, ..., head_h)W<sup>O</sup>
+                        <br>head_i = Attention(QW<sub>i</sub><sup>Q</sup>, KW<sub>i</sub><sup>K</sup>, VW<sub>i</sub><sup>V</sup>)
+                        <br><br><strong>Where:</strong>
+                        <br>• h = number of attention heads (typically 8 or 16)
+                        <br>• W<sub>i</sub><sup>Q</sup>, W<sub>i</sub><sup>K</sup>, W<sub>i</sub><sup>V</sup> = weight matrices for head i
+                        <br>• Each head has dimension d_k = d_model/h
+                        <br>• W<sup>O</sup> = output projection matrix (h×d_v, d_model)
+                        <br>• Concat = concatenate all head outputs
                     </div>
                     
                     <p><strong>Real WhatsApp analogy:</strong></p>
-                    <p>• <strong>🧠 Head 1 (Grammar):</strong> "Are the questions properly formed? Is the syntax correct?"</p>
-                    <p>• <strong>🧠 Head 2 (Context):</strong> "How does ML relate to transformers? What's the topic flow?"</p>
-                    <p>• <strong>🧠 Head 3 (Sentiment):</strong> "Chris sounds excited! Maya is helpful! Sam is studying!"</p>
-                    <p>• Combined understanding is much richer than any single perspective</p>
+                    <p>• <strong>Head 1 (Syntax Expert):</strong> "Is 'can anyone help' proper grammar?"</p>
+                    <p>• <strong>Head 2 (Topic Expert):</strong> "How does 'machine learning' relate to 'transformers'?"</p>
+                    <p>• <strong>Head 3 (Sentiment Expert):</strong> "Is this a question, request, or statement?"</p>
+                    <p>• <strong>Head 4 (Entity Expert):</strong> "Who are the people? What are the technical terms?"</p>
+                    <p>• All heads work simultaneously, then combine their insights!</p>
                     
-                    <p><strong>Why this matters:</strong> Different friends notice different things - together they get the full picture of the conversation!</p>
+                    <p><strong>Why this matters:</strong> Like having grammar expert + topic expert + emotion expert all analyze the same chat - richer understanding!</p>
                 `
             },
             4: {
-                title: "5. Decoder Starts = Begin Writing Response",
+                title: "5. Decoder Self-Attention (Masked) = Writing Without Peeking",
                 content: `
-                    <p><strong>What's happening:</strong> The decoder starts generating a response, using both the encoder's understanding AND what it has generated so far.</p>
+                    <p><strong>What's happening:</strong> When generating response word-by-word, the decoder can only look at words it has already written, not future words.</p>
                     
                     <div class="math-formula">
-                        Masked Self-Attention: Can't peek at future words
-                        <br>Cross-Attention: Looks at encoder's understanding
-                        <br>Feed Forward: Processes and refines
+                        Masked-Attention(Q,K,V) = softmax((QK<sup>T</sup> + Mask)/√d<sub>k</sub>)V
+                        <br><br><strong>Mask Matrix (for sequence length 4):</strong>
+                        <br>[0, -∞, -∞, -∞]  ← Position 1 can't see positions 2,3,4
+                        <br>[0,  0, -∞, -∞]  ← Position 2 can't see positions 3,4  
+                        <br>[0,  0,  0, -∞]  ← Position 3 can't see position 4
+                        <br>[0,  0,  0,  0]  ← Position 4 can see all previous
+                        <br><br><strong>Where:</strong>
+                        <br>• -∞ makes softmax output 0 (no attention to future)
+                        <br>• 0 allows attention to current/past positions
+                        <br>• This enforces left-to-right generation order
                     </div>
                     
                     <p><strong>Real WhatsApp analogy:</strong></p>
-                    <p>• 🎯 Decoder thinks: "Based on the conversation, I should explain transformers"</p>
-                    <p>• It starts typing: "Let me explain how they work! 🤖"</p>
-                    <p>• Unlike encoder (reads everything), decoder generates word-by-word</p>
-                    <p>• Can't "cheat" by looking ahead - just like real typing!</p>
+                    <p>• 🎯 Decoder starts typing: "Let"</p>
+                    <p>• When writing "me", it can see "Let" but NOT "explain" or "transformers" (not written yet)</p>
+                    <p>• When writing "explain", it can see "Let me" but NOT "transformers"</p>
+                    <p>• Like typing in WhatsApp - you build message left-to-right, no time travel!</p>
                     
-                    <p><strong>Why this matters:</strong> When you type a response, you build it word by word, considering what you've already written!</p>
+                    <p><strong>Why this matters:</strong> Prevents "cheating" - AI must generate responses naturally like humans do, one word at a time!</p>
                 `
             },
             5: {
-                title: "6. Cross-Attention = Consulting the Context",
+                title: "6. Cross-Attention = Consulting the Full Conversation",
                 content: `
-                    <p><strong>What's happening:</strong> While generating each word, the decoder "looks back" at the encoder's understanding of the conversation.</p>
+                    <p><strong>What's happening:</strong> While generating each new word, the decoder "looks back" at the encoder's understanding of the entire input conversation.</p>
                     
                     <div class="math-formula">
-                        Cross-Attention(Q_decoder, K_encoder, V_encoder)
-                        <br>Decoder asks: "What did the encoder understand?"
-                        <br>Encoder provides: Rich context about the conversation
+                        Cross-Attention(Q<sub>decoder</sub>, K<sub>encoder</sub>, V<sub>encoder</sub>)
+                        <br>= softmax(Q<sub>dec</sub>K<sub>enc</sub><sup>T</sup>/√d<sub>k</sub>)V<sub>enc</sub>
+                        <br><br><strong>Where:</strong>
+                        <br>• Q<sub>decoder</sub> = queries from what decoder is generating
+                        <br>• K<sub>encoder</sub> = keys from encoder's processed input  
+                        <br>• V<sub>encoder</sub> = values from encoder's processed input
+                        <br>• This allows decoder to attend to ANY part of input
+                        <br>• No masking needed - decoder can see entire input context
+                        <br>• Different from self-attention: Q from decoder, K,V from encoder
                     </div>
                     
                     <p><strong>Real WhatsApp analogy:</strong></p>
-                    <p>• 🎯 Decoder: "I'm generating 'A transformer processes...'"</p>
-                    <p>• 🔗 Cross-Attention: "Let me check what the encoder understood about ML and transformers"</p>
-                    <p>• 🧠 Encoder: "They want to learn ML, specifically about transformers, in simple terms"</p>
-                    <p>• 🎯 Decoder: "Perfect! I'll explain using the group chat analogy"</p>
+                    <p>• 🎯 Decoder generates: "A transformer"</p>
+                    <p>• 🔗 Cross-Attention: "What was the original question about?"</p>
+                    <p>• 🧠 Encoder: "Alex asked about 'machine learning', Sam mentioned 'transformers'"</p>
+                    <p>• 🎯 Decoder: "Perfect! I'll explain transformers in ML context"</p>
+                    <p>• Like scrolling up in WhatsApp while typing to stay on topic!</p>
                     
-                    <p><strong>Why this matters:</strong> Good responses stay relevant to the original conversation - cross-attention ensures this!</p>
+                    <p><strong>Why this matters:</strong> Keeps AI response relevant to original question - prevents going off-topic during generation!</p>
                 `
             },
             6: {
-                title: "7. Final Output = Complete Response Generated",
+                title: "7. Feed Forward Network + Layer Normalization",
                 content: `
-                    <p><strong>What's happening:</strong> The transformer has successfully generated a complete, contextually appropriate response using the encoder-decoder architecture.</p>
+                    <p><strong>What's happening:</strong> After attention, each position gets processed through a neural network, with residual connections and normalization for stability.</p>
                     
                     <div class="math-formula">
-                        P(y<sub>t</sub>|y<sub>&lt;t</sub>, X) = softmax(W<sub>o</sub>h<sub>t</sub>)
-                        <br>Where h<sub>t</sub> = decoder hidden state + encoder context
+                        FFN(x) = max(0, xW₁ + b₁)W₂ + b₂
+                        <br>LayerNorm(x) = γ(x - μ)/σ + β
+                        <br>Output = LayerNorm(x + Sublayer(x))
+                        <br><br><strong>Where:</strong>
+                        <br>• FFN = Feed Forward Network (2 linear layers + ReLU)
+                        <br>• W₁, W₂ = weight matrices, b₁, b₂ = bias vectors
+                        <br>• max(0, z) = ReLU activation (removes negatives)
+                        <br>• μ = mean, σ = standard deviation of x
+                        <br>• γ, β = learnable scale and shift parameters
+                        <br>• x + Sublayer(x) = residual connection (skip connection)
+                        <br>• Applied after both self-attention and cross-attention
                     </div>
                     
                     <p><strong>Real WhatsApp analogy:</strong></p>
-                    <p>• ✅ <strong>Encoder:</strong> Understood the full conversation context</p>
-                    <p>• ✅ <strong>Decoder:</strong> Generated relevant response word-by-word</p>
-                    <p>• ✅ <strong>Cross-Attention:</strong> Kept response connected to original question</p>
-                    <p>• ✅ <strong>Result:</strong> "A transformer processes text like our group chat - everyone reads, connects ideas, then responds!"</p>
+                    <p>• <strong>Feed Forward:</strong> "Let me think deeper about this specific word"</p>
+                    <p>• Like each friend taking notes after group discussion</p>
+                    <p>• <strong>Residual Connection:</strong> "Don't forget the original message"</p>
+                    <p>• Like keeping original chat + your analysis notes</p>
+                    <p>• <strong>Layer Norm:</strong> "Keep thoughts organized and balanced"</p>
+                    <p>• Like group agreeing on consistent note-taking format</p>
                     
-                    <p><strong>Why this matters:</strong> This is exactly how ChatGPT, GPT-4, Claude, and other AI models work - encoder understands your question, decoder generates the response!</p>
+                    <p><strong>Why this matters:</strong> Prevents "vanishing gradients" and keeps training stable - like having good group communication rules!</p>
                 `
             }
         };
