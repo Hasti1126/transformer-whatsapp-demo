@@ -215,13 +215,99 @@
         }
         
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
             .content {
                 flex-direction: column;
                 height: auto;
             }
             
-            .chat-section, .explanation-section {
-                flex: none;
+            .chat-section {
+                height: 50vh;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            
+            .explanation-section {
+                height: 50vh;
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 18px;
+            }
+            
+            .header p {
+                font-size: 12px;
+            }
+            
+            .controls {
+                padding: 15px;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            
+            .btn {
+                padding: 8px 12px;
+                font-size: 12px;
+                flex: 1;
+                min-width: 120px;
+            }
+            
+            .step-title {
+                font-size: 16px;
+            }
+            
+            .math-formula {
+                font-size: 12px;
+                overflow-x: auto;
+            }
+            
+            .message {
+                margin-bottom: 12px;
+            }
+            
+            .avatar {
+                width: 30px;
+                height: 30px;
+                font-size: 11px;
+            }
+            
+            .sender {
+                font-size: 13px;
+            }
+            
+            .text {
+                font-size: 14px;
+                padding: 6px 10px;
+            }
+            
+            .time {
+                font-size: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            .btn {
+                min-width: auto;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .chat-messages {
+                padding: 15px;
+            }
+            
+            .explanation-section {
+                padding: 10px;
             }
         }
     </style>
@@ -254,11 +340,14 @@
         </div>
         
         <div class="controls">
-            <button class="btn active" onclick="showStep(0)">1. Input Messages</button>
-            <button class="btn" onclick="showStep(1)">2. Timestamps</button>
-            <button class="btn" onclick="showStep(2)">3. Attention</button>
-            <button class="btn" onclick="showStep(3)">4. Multiple Views</button>
-            <button class="btn" onclick="showStep(4)">5. Prediction</button>
+            <button class="btn active" onclick="showStep(0)">1. Input</button>
+            <button class="btn" onclick="showStep(1)">2. Position</button>
+            <button class="btn" onclick="showStep(2)">3. Encoder</button>
+            <button class="btn" onclick="showStep(3)">4. Multi-Head</button>
+            <button class="btn" onclick="showStep(4)">5. Decoder</button>
+            <button class="btn" onclick="showStep(5)">6. Cross-Attention</button>
+            <button class="btn" onclick="showStep(6)">7. Output</button>
+        </div>4)">5. Prediction</button>
         </div>
     </div>
 
@@ -276,29 +365,46 @@
                 { sender: "Sam", color: "#2196f3", text: "I'm studying transformers right now", time: "2:17 PM", position: "[Position 3]" },
                 { sender: "Chris", color: "#ff9800", text: "Transformers are fascinating!", time: "2:18 PM", position: "[Position 4]" }
             ],
-            2: [ // Self-Attention
+            2: [ // Encoder - Self-Attention
                 { sender: "Alex", color: "#e91e63", text: "Hey guys, can anyone help me with <span class='token-highlight'>machine learning</span>?", time: "2:15 PM" },
                 { sender: "Maya", color: "#9c27b0", text: "Sure! What <span class='token-highlight'>specific topic</span>?", time: "2:16 PM", highlight: true },
                 { sender: "Sam", color: "#2196f3", text: "I'm studying <span class='token-highlight'>transformers</span> right now", time: "2:17 PM" },
                 { sender: "Chris", color: "#ff9800", text: "<span class='token-highlight'>Transformers</span> are fascinating!", time: "2:18 PM" },
-                { sender: "System", color: "#4caf50", text: "🔍 Maya is checking: 'machine learning' <span class='attention-arrow'>→</span> 'transformers' (High relevance!)", time: "Processing", highlight: true }
+                { sender: "🧠 Encoder", color: "#4caf50", text: "📖 Reading & understanding all past messages... Finding connections between 'machine learning' and 'transformers'", time: "Processing", highlight: true }
             ],
-            3: [ // Multi-Head Attention
+            3: [ // Multi-Head Attention (Encoder)
                 { sender: "Alex", color: "#e91e63", text: "Hey guys, can anyone help me with machine learning?", time: "2:15 PM" },
                 { sender: "Maya", color: "#9c27b0", text: "Sure! What specific topic?", time: "2:16 PM" },
                 { sender: "Sam", color: "#2196f3", text: "I'm studying transformers right now", time: "2:17 PM" },
                 { sender: "Chris", color: "#ff9800", text: "Transformers are fascinating!", time: "2:18 PM", highlight: true },
-                { sender: "Maya (Grammar Head)", color: "#9c27b0", text: "🔍 Checking grammar and syntax patterns", time: "Processing" },
-                { sender: "Sam (Context Head)", color: "#2196f3", text: "🔍 Looking for topic relationships and context", time: "Processing" },
-                { sender: "Chris (Sentiment Head)", color: "#ff9800", text: "🔍 Analyzing emotional tone and enthusiasm", time: "Processing", highlight: true }
+                { sender: "🧠 Encoder Head 1", color: "#9c27b0", text: "🔍 Grammar Focus: Checking sentence structure and syntax", time: "Processing" },
+                { sender: "🧠 Encoder Head 2", color: "#2196f3", text: "🔍 Context Focus: Connecting ML → Transformers topic relationship", time: "Processing" },
+                { sender: "🧠 Encoder Head 3", color: "#ff9800", text: "🔍 Sentiment Focus: Chris shows enthusiasm about transformers!", time: "Processing", highlight: true }
             ],
-            4: [ // Prediction
+            4: [ // Decoder Start
                 { sender: "Alex", color: "#e91e63", text: "Hey guys, can anyone help me with machine learning?", time: "2:15 PM" },
                 { sender: "Maya", color: "#9c27b0", text: "Sure! What specific topic?", time: "2:16 PM" },
                 { sender: "Sam", color: "#2196f3", text: "I'm studying transformers right now", time: "2:17 PM" },
                 { sender: "Chris", color: "#ff9800", text: "Transformers are fascinating!", time: "2:18 PM" },
-                { sender: "AI Prediction", color: "#4caf50", text: "Next message likely: 'Let me explain transformers...' (85% confidence)", time: "Predicting", highlight: true },
-                { sender: "Chris", color: "#ff9800", text: "Let me explain how they work! 🤖", time: "2:19 PM", highlight: true }
+                { sender: "🎯 Decoder", color: "#ff5722", text: "✍️ Now generating response... Looking at encoder's understanding + what I've written so far", time: "Generating", highlight: true },
+                { sender: "Chris", color: "#ff9800", text: "Let me explain how they work! 🤖", time: "2:19 PM" }
+            ],
+            5: [ // Cross-Attention (Decoder looking at Encoder)
+                { sender: "Alex", color: "#e91e63", text: "Hey guys, can anyone help me with machine learning?", time: "2:15 PM" },
+                { sender: "Maya", color: "#9c27b0", text: "Sure! What specific topic?", time: "2:16 PM" },
+                { sender: "Sam", color: "#2196f3", text: "I'm studying transformers right now", time: "2:17 PM" },
+                { sender: "Chris", color: "#ff9800", text: "Transformers are fascinating!", time: "2:18 PM" },
+                { sender: "Chris", color: "#ff9800", text: "Let me explain how they work! 🤖", time: "2:19 PM" },
+                { sender: "🎯 Decoder", color: "#ff5722", text: "🔗 Cross-Attention: Consulting encoder's analysis while generating 'A transformer processes...'", time: "Generating", highlight: true },
+                { sender: "Chris", color: "#ff9800", text: "A transformer processes text like our group chat - everyone reads, connects ideas, then responds!", time: "2:19 PM" }
+            ],
+            6: [ // Final Prediction
+                { sender: "Alex", color: "#e91e63", text: "Hey guys, can anyone help me with machine learning?", time: "2:15 PM" },
+                { sender: "Maya", color: "#9c27b0", text: "Sure! What specific topic?", time: "2:16 PM" },
+                { sender: "Sam", color: "#2196f3", text: "I'm studying transformers right now", time: "2:17 PM" },
+                { sender: "Chris", color: "#ff9800", text: "Transformers are fascinating! Let me explain how they work! 🤖", time: "2:18 PM" },
+                { sender: "Chris", color: "#ff9800", text: "A transformer processes text like our group chat - everyone reads, connects ideas, then responds!", time: "2:19 PM", highlight: true },
+                { sender: "🎯 Final Output", color: "#4caf50", text: "✅ Complete response generated! Encoder understood context → Decoder generated relevant explanation", time: "Complete", highlight: true }
             ]
         };
         
@@ -341,9 +447,9 @@
                 `
             },
             2: {
-                title: "3. Self-Attention = Friends Re-reading Carefully",
+                title: "3. Encoder = Friends Reading & Understanding",
                 content: `
-                    <p><strong>What's happening:</strong> Each person in the chat looks back at previous messages to understand context before responding.</p>
+                    <p><strong>What's happening:</strong> The encoder acts like friends in the group carefully reading and understanding ALL the messages to build context.</p>
                     
                     <div class="math-formula">
                         Attention(Q,K,V) = softmax(QK<sup>T</sup>/√d<sub>k</sub>)V
@@ -353,18 +459,18 @@
                     </div>
                     
                     <p><strong>Real WhatsApp analogy:</strong></p>
-                    <p>• Maya sees Alex asked about "machine learning" 🔍</p>
-                    <p>• She spots Sam mentioned "transformers" - highly relevant!</p>
-                    <p>• Maya's brain: "Alex wants ML help → Sam mentioned transformers → I should connect these!"</p>
-                    <p>• This is exactly what attention does - finds relevant connections</p>
+                    <p>• 🧠 Encoder reads ALL messages: Alex's question + Maya's offer + Sam's mention + Chris's excitement</p>
+                    <p>• It finds the connection: "machine learning" relates to "transformers"</p>
+                    <p>• Creates a rich understanding of the conversation context</p>
+                    <p>• This understanding will help generate the perfect response</p>
                     
-                    <p><strong>Why this matters:</strong> Humans naturally reference previous messages. AI needs to do the same to stay coherent!</p>
+                    <p><strong>Why this matters:</strong> Before responding, good friends read the whole conversation to understand what's really being discussed!</p>
                 `
             },
             3: {
-                title: "4. Multi-Head Attention = Different Friend Perspectives",
+                title: "4. Multi-Head Attention (Encoder) = Multiple Perspectives",
                 content: `
-                    <p><strong>What's happening:</strong> Instead of one person reading the chat, multiple friends each focus on different aspects simultaneously.</p>
+                    <p><strong>What's happening:</strong> The encoder uses multiple "attention heads" - like having different friends each focus on different aspects of the conversation.</p>
                     
                     <div class="math-formula">
                         MHA(X) = [head₁; head₂; ...; head_h]W^O
@@ -372,31 +478,71 @@
                     </div>
                     
                     <p><strong>Real WhatsApp analogy:</strong></p>
-                    <p>• <strong>Maya (Grammar Head):</strong> "Is this question properly formed?"</p>
-                    <p>• <strong>Sam (Context Head):</strong> "How does this relate to our previous ML discussions?"</p>
-                    <p>• <strong>Chris (Sentiment Head):</strong> "Chris sounds excited about transformers!"</p>
-                    <p>• Together, they get a richer understanding than any single perspective</p>
+                    <p>• <strong>🧠 Head 1 (Grammar):</strong> "Are the questions properly formed? Is the syntax correct?"</p>
+                    <p>• <strong>🧠 Head 2 (Context):</strong> "How does ML relate to transformers? What's the topic flow?"</p>
+                    <p>• <strong>🧠 Head 3 (Sentiment):</strong> "Chris sounds excited! Maya is helpful! Sam is studying!"</p>
+                    <p>• Combined understanding is much richer than any single perspective</p>
                     
-                    <p><strong>Why this matters:</strong> Just like how different friends notice different things in a conversation, multiple attention heads catch various linguistic patterns!</p>
+                    <p><strong>Why this matters:</strong> Different friends notice different things - together they get the full picture of the conversation!</p>
                 `
             },
             4: {
-                title: "5. Output Layer = Predicting Next Message",
+                title: "5. Decoder Starts = Begin Writing Response",
                 content: `
-                    <p><strong>What's happening:</strong> Based on all the analysis, the AI predicts what the most likely next message should be.</p>
+                    <p><strong>What's happening:</strong> The decoder starts generating a response, using both the encoder's understanding AND what it has generated so far.</p>
                     
                     <div class="math-formula">
-                        P(y<sub>t</sub>|y<sub>&lt;t</sub>, X) = softmax(W<sub>o</sub>h<sub>t</sub>)
-                        <br>Where h<sub>t</sub> = processed chat context
+                        Masked Self-Attention: Can't peek at future words
+                        <br>Cross-Attention: Looks at encoder's understanding
+                        <br>Feed Forward: Processes and refines
                     </div>
                     
                     <p><strong>Real WhatsApp analogy:</strong></p>
-                    <p>• Alex asked about ML → Maya offered help → Sam mentioned transformers → Chris showed excitement</p>
-                    <p>• Pattern suggests next message will likely be: someone explaining transformers!</p>
-                    <p>• AI predicted: "Let me explain transformers..." (85% confidence)</p>
-                    <p>• Chris actually wrote: "Let me explain how they work! 🤖" ✅</p>
+                    <p>• 🎯 Decoder thinks: "Based on the conversation, I should explain transformers"</p>
+                    <p>• It starts typing: "Let me explain how they work! 🤖"</p>
+                    <p>• Unlike encoder (reads everything), decoder generates word-by-word</p>
+                    <p>• Can't "cheat" by looking ahead - just like real typing!</p>
                     
-                    <p><strong>Why this matters:</strong> This is how ChatGPT, GPT-4, and other AI assistants generate human-like responses - by predicting the most appropriate next words based on conversation context!</p>
+                    <p><strong>Why this matters:</strong> When you type a response, you build it word by word, considering what you've already written!</p>
+                `
+            },
+            5: {
+                title: "6. Cross-Attention = Consulting the Context",
+                content: `
+                    <p><strong>What's happening:</strong> While generating each word, the decoder "looks back" at the encoder's understanding of the conversation.</p>
+                    
+                    <div class="math-formula">
+                        Cross-Attention(Q_decoder, K_encoder, V_encoder)
+                        <br>Decoder asks: "What did the encoder understand?"
+                        <br>Encoder provides: Rich context about the conversation
+                    </div>
+                    
+                    <p><strong>Real WhatsApp analogy:</strong></p>
+                    <p>• 🎯 Decoder: "I'm generating 'A transformer processes...'"</p>
+                    <p>• 🔗 Cross-Attention: "Let me check what the encoder understood about ML and transformers"</p>
+                    <p>• 🧠 Encoder: "They want to learn ML, specifically about transformers, in simple terms"</p>
+                    <p>• 🎯 Decoder: "Perfect! I'll explain using the group chat analogy"</p>
+                    
+                    <p><strong>Why this matters:</strong> Good responses stay relevant to the original conversation - cross-attention ensures this!</p>
+                `
+            },
+            6: {
+                title: "7. Final Output = Complete Response Generated",
+                content: `
+                    <p><strong>What's happening:</strong> The transformer has successfully generated a complete, contextually appropriate response using the encoder-decoder architecture.</p>
+                    
+                    <div class="math-formula">
+                        P(y<sub>t</sub>|y<sub>&lt;t</sub>, X) = softmax(W<sub>o</sub>h<sub>t</sub>)
+                        <br>Where h<sub>t</sub> = decoder hidden state + encoder context
+                    </div>
+                    
+                    <p><strong>Real WhatsApp analogy:</strong></p>
+                    <p>• ✅ <strong>Encoder:</strong> Understood the full conversation context</p>
+                    <p>• ✅ <strong>Decoder:</strong> Generated relevant response word-by-word</p>
+                    <p>• ✅ <strong>Cross-Attention:</strong> Kept response connected to original question</p>
+                    <p>• ✅ <strong>Result:</strong> "A transformer processes text like our group chat - everyone reads, connects ideas, then responds!"</p>
+                    
+                    <p><strong>Why this matters:</strong> This is exactly how ChatGPT, GPT-4, Claude, and other AI models work - encoder understands your question, decoder generates the response!</p>
                 `
             }
         };
@@ -448,14 +594,14 @@
         // Initialize with first step
         showStep(0);
         
-        // Auto-advance demo (optional)
+                    // Auto-advance demo (optional)
         let autoAdvance = false;
         function startAutoDemo() {
             if (autoAdvance) return;
             autoAdvance = true;
             
             const interval = setInterval(() => {
-                currentStep = (currentStep + 1) % 5;
+                currentStep = (currentStep + 1) % 7;
                 showStep(currentStep);
                 
                 if (currentStep === 0) {
